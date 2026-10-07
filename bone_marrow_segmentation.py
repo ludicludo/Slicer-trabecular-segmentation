@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 # === CONFIGURATION ===
 # Flag to indicate if the analysis should only consider bony structures.
 ONLY_BONES = True
+DEFAULT_DIR = Path(".")
 
 # List of standard anatomical labels considered as bones/skeletal structures.
 BONES_LABEL_IDS = (
@@ -436,7 +437,7 @@ def is_modality(volume: vtkMRMLScalarVolumeNode, modality: str) -> bool:
 
 def get_volume(volumes: list[vtkMRMLScalarVolumeNode], modality: str) -> vtkMRMLScalarVolumeNode:
     """
-    Selects the appropriate volume node (e.g., first CT or first PET).
+    Selects the appropriate volume node (e.g., first CT or first PT).
     
     If multiple volumes match, it relies on the input order or predefined logic.
 
@@ -466,8 +467,8 @@ def get_volume(volumes: list[vtkMRMLScalarVolumeNode], modality: str) -> vtkMRML
         if modality.upper() == 'CT' and volumes:
             logger.warning("Falling back to first provided volume for CT.")
             return volumes[0] 
-        elif modality.upper() == 'PET' and len(volumes) > 1:
-            logger.warning("Falling back to second provided volume for PET.")
+        elif modality.upper() == 'PT' and len(volumes) > 1:
+            logger.warning("Falling back to second provided volume for PT.")
             return volumes[1]
         raise e
 
@@ -503,7 +504,7 @@ if __name__ == "__main__":
     # 1. Volume Identification
     all_volumes = getNodesByClass("vtkMRMLScalarVolumeNode")
     ct = get_volume(all_volumes, "CT")
-    pt = get_volume(all_volumes, "PET")
+    pt = get_volume(all_volumes, "PT")
     
     if ct is None or pt is None:
         logger.error("CT or PET volume could not be retrieved. Exiting.")
@@ -517,7 +518,7 @@ if __name__ == "__main__":
         else:
             # Fallback: Use a generic path or Slicer's current directory
             logger.warning("Storage Node for CT is None. Falling back to current working directory.")
-            return Path('.')
+            return DEFAULT_DIR.resolve()
 
     # 2. Bone Segmentation
     total_seg_nodes = getNodesByClass('vtkMRMLSegmentationNode')
