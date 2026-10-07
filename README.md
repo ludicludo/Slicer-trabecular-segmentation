@@ -21,10 +21,7 @@ The primary script, `bone_marrow_segmentation.py`, performs the following sequen
     *   Calculates the Median Standardized Uptake Value (SUV) from the trabecular PET segmentation.
     *   Uses this Median SUV to segment high-uptake bone marrow regions within the bony mask.
     *   Compares the volume ratio of (SUV-PET volume / Trabecular volume).
-6.  **Tumor/Lesion Analysis:**
-    *   Segments lesions using two thresholds: the 95th percentile of the trabeculae and a fixed SUV value of 3.0.
-    *   Calculates the volume of these lesions within the total bone mask.
-7.  **Reporting:** Aggregates all computed metrics into a final Pandas DataFrame and saves it as `[PatientName]_analysis_results.csv` in a time-stamped directory.
+6.  **Reporting:** Aggregates all computed metrics into a final Pandas DataFrame and saves it as `[PatientName]_analysis_results.csv` in a time-stamped directory.
 
 ## 🚀 How to Run the Script in 3D Slicer
 
@@ -39,21 +36,19 @@ This script must be executed within the Python console of the 3D Slicer applicat
 
 1.  **Save the Script:** Place `bone_marrow_segmentation.py` in a directory accessible by Slicer (e.g., a custom module folder or a known location).
 2.  **Open the Python Console:** In 3D Slicer, navigate to the **Modules** tab and open the **Python Console**.
-3.  **Import and Execute:** Run the following commands in the console:
+3.  **Import patient's examination:** Navigate to **DICOM module** to import patient's files 
+4.  **Load FDG PET/CT images:**  In the DICOM panel, **load** the images.
+5.  **Import and Execute:** Run the following commands in the console:
 
     ```python
-    # 1. Import the script file
-    import bone_marrow_segmentation as bms
-
-    # 2. Execute the main pipeline execution block
-    # The script is designed to run the entire pipeline when __name__ == "__main__"
-    bms.__main__()
+    # Execute the main pipeline 
+    exec(open(r"the/script/location/bone_marrow_segmentation.py").read())
     ```
 
 **⚠️ Important Notes:**
 
 *   **GUI Dependence:** The script initializes and modifies the Slicer GUI (Segment Editor). Ensure the Slicer environment is correctly set up before execution.
-*   **Output:** The results are saved to a local directory determined by the filename of the input CT volume and an appended timestamp (e.g., `/path/to/CT_file/20240528103045/patientname_analysis_results.csv`).
+*   **Output:** The results are saved to a local directory determined by the filename of the input CT volume and an appended timestamp (e.g., `/path/to/CT_file/20240528103042/patientname_analysis_results.csv`).
 *   **Warnings:** The script includes logging (`INFO` and `ERROR`). If errors occur during calculation, check the Slicer logging output.
 
 ## 📚 Code Structure
