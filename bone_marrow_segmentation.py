@@ -620,33 +620,6 @@ if __name__ == "__main__":
             logger.error(f"PET/Trabecular volume extraction failed: {e}")
             suv_vol_cm3, trab_vol_cm3_merge, ratio_vol_suv_over_vol_trab = 0.0, 0.0, 0.0
 
-        # PET Segmentation 2: SUV <-> THRESHOLDING LESION (using 95th percentile)
-        try:
-            threshold_lesion = df_trab_merge_pet.loc[0, "Percentile 95"]
-        except Exception as e:
-            logger.warning(f"Could not find Percentile 95. Skipping lesion thresholding: {e}")
-            threshold_lesion = 0.0
-            
-        # PET Segmentation 3: SUV <-> TOTAL BONE MASK (for whole tumor volume)
-        temp_pet_lesion_node = pet_segmentation(pt, round(threshold_lesion, 1), merged_bones_node)
-        
-        if temp_pet_lesion_node:
-            stats_pet_lesion = StatisticsCalculator(temp_pet_lesion_node, pt)
-            table_pet_lesion = stats_pet_lesion.export_to_table()
-            df_pet_lesion = slicer.util.dataframeFromTable(table_pet_lesion)
-            tumor_suv_cm3 = df_pet_lesion.iloc[0]["Volume cm3"]
-        else:
-            tumor_suv_cm3 = 0.0
-
-        # PET Segmentation 4: SUV=3.0 for reference
-        temp_pet_suv3_node = pet_segmentation(pt, 3.0, merged_bones_node)
-        if temp_pet_suv3_node:
-            stats_pet_suv3 = StatisticsCalculator(temp_pet_suv3_node, pt)
-            table_pet_suv3 = stats_pet_suv3.export_to_table()
-            df_pet_suv3 = slicer.util.dataframeFromTable(table_pet_suv3)
-            tumor_suv3_cm3 = df_pet_suv3.iloc[0]["Volume cm3"]
-        else:
-            tumor_suv3_cm3 = 0.0
     else:
         # If trabecular/PET segmentation failed early
         suv_vol_cm3, trab_vol_cm3_merge, ratio_vol_suv_over_vol_trab = 0.0, 0.0, 0.0
@@ -663,9 +636,6 @@ if __name__ == "__main__":
         "median_SUV_abm": median_suv_abm,
         "SUV_Vol_in_Trabeculae_cm3": suv_vol_cm3,
         "Ratio_PET_SUV_over_TrabVolume": ratio_vol_suv_over_vol_trab,
-        "Tumor_SUV_Threshold": threshold_lesion,
-        "Tumor_SUV_Volume_cm3": tumor_suv_cm3,
-        "Tumor_SUV3_Volume_cm3": tumor_suv3_cm3
     }
     
     patname = get_patient_name()
